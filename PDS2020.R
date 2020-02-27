@@ -106,7 +106,6 @@ tweet_words <- tweets %>% select(text) %>%
   mutate(text = tolower(text)) %>%
   mutate(text = removeWords(text, stopwords('en'))) %>%
   mutate(text = removeWords(text, c("see", "people","new","want","one","even","must","need","done","back","just","going", "know","can","said","like","many","like","realdonaldtrump", "rt"))) %>%
-  mutate(text = removeWords(text, c(""))) %>%
 
 # Getting frequencies
 sorted <- as.tibble(unlist(str_split(tweet_words, " "))) %>%
@@ -117,5 +116,23 @@ sorted <- as.data.frame(sorted)
 sorted <- sorted[-c(1, 2, 6, 9, 29, 35, 48),] # really tried
 
 # Making the wordcloud
-wordcloud(words = sorted$value, freq = sorted$count, min.freq=3, max.words=50)
+wordcloud(words = sorted$value, freq = sorted$count, min.freq=3, max.words=50, colors=c("red", "blue", "navy"))
 
+# Making DTM
+input <- Corpus(VectorSource(sorted[,1]))
+DTM <- TermDocumentMatrix(input, control=list(weighting = weightTfIdf))
+
+# Find the top 50 terms
+findFreqTerms(DTM, lowfreq = 0.8)[1:50]
+
+# They are:
+# "will"        "great"       "trump"       "amp"         "president"  
+# "now"         "get"         "america"     "country"     "thank"      
+# "democrats"   "make"        "donald"      "big"         "time"       
+# "never"       "news"        "vote"        "good"        "much"       
+# "run"         "today"       "american"    "fake"        "border"     
+# "years"       "best"        "media"       "obama"       "hillary"    
+# "love"        "house"       "job"         "united"      "nothing"    
+# "day"         "really"      "last"        "first"       "way"        
+# "states"      "ever"        "win"         "bad"         "think"      
+# "impeachment" "made"        "deal"        "jobs"        "state" 
