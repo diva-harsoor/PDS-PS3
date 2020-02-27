@@ -1,6 +1,9 @@
 library(ggplot2)
 library(tidyverse)
 library(fivethirtyeight)
+library(tm)
+library(lubridate)
+library(wordcloud)
 
 #1)
 primaryPolls <- read.csv('https://jmontgomery.github.io/PDS/Datasets/president_primary_polls_feb2020.csv', stringsAsFactors = F)
@@ -54,7 +57,7 @@ polls <- polls %>% mutate(candidate_name = recode(candidate_name, "Joseph R. Bid
 dems.race.2020 <- polls %>% inner_join(Endorsements, by = "candidate_name")
 unique(dems.race.2020$candidate_name) # There are 5!
 
-# Counting endorsements
+# Counting and plotting endorsements
 num_endorsements <- dems.race.2020 %>% group_by(candidate_name) %>% filter(!is.na(candidate_name)) %>% summarise(count = n()) 
 p <- ggplot(data = num_endorsements, mapping = aes(x = candidate_name, y = count)) +
     geom_point()
@@ -62,3 +65,32 @@ p + labs(title = "Who the Who's Who Think Should Win in 2020", x = "Number of En
   theme_light() + 
   theme(axis.text.y = element_text(angle = 15), axis.text.x = element_text(angle = 15))
 
+#4) Read in libraries at the top
+tweets <- read.csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv')
+tweets <- as.tibble(tweets)
+
+# Splitting out date and time variables from created_at
+tweets <- tweets %>% separate(created_at, c("date_published", "time_published"), sep = " ")
+
+# Finding date range
+tweets <- as.data.frame(tweets)
+date.data <- tweets %>% separate(date_published, c("month", "day", "year"), sep = "/")
+yearRange = range(as.numeric(date.data$year)) #2014-2020
+startMonth = range(as.numeric(unlist(filter(date.data, year == "2014")$month))) #1-12
+endMonth = range(as.numeric(unlist(filter(date.data, year == "2020")$month))) #1-2
+startDay = range(as.numeric(unlist(filter(date.data, year == "2014", month == "1")$day))) #1-31
+endDay = range(as.numeric(unlist(filter(date.data, year == "2020", month == "2")$day))) #1-14
+# So the date range is 1/1/2014 - 2/14/2020
+
+# Dropping retweets
+tweets <- tweets %>% select(source, text, date_published, time_published, retweet_count, favorite_count)
+
+# Finding top 5 most liked tweets
+tweets <- tweets %>% arrange(desc(favorite_count)) 
+most_liked <- tweets[1:5,] # It was a Rocky Week get home ASAP A$AP!
+
+# Finding top 5 most retweeted tweets
+tweets <- tweets %>% arrange(desc(retweet_count))
+most_retweeted <- tweets[1:5,] # Hehe #3
+
+# Remove everything extraneous
