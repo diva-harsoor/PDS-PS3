@@ -67,6 +67,7 @@ p + labs(title = "Who the Who's Who Think Should Win in 2020", x = "Number of En
 
 #4) Read in libraries at the top
 tweets <- read.csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv')
+tweetsCopy <- tweets # So we can skip reading in again
 tweets <- as.tibble(tweets)
 
 # Splitting out date and time variables from created_at
@@ -93,4 +94,28 @@ most_liked <- tweets[1:5,] # It was a Rocky Week get home ASAP A$AP!
 tweets <- tweets %>% arrange(desc(retweet_count))
 most_retweeted <- tweets[1:5,] # Hehe #3
 
-# Remove everything extraneous
+# Removing everything extraneous
+tweets <- tweetsCopy
+tweets$text = as.character(tweets$text)
+
+
+tweet_words <- tweets %>% select(text) %>% 
+  mutate(text = stripWhitespace(text)) %>%
+  mutate(text = removeNumbers(text)) %>%
+  mutate(text = removePunctuation(text)) %>%
+  mutate(text = tolower(text)) %>%
+  mutate(text = removeWords(text, stopwords('en'))) %>%
+  mutate(text = removeWords(text, c("see", "people","new","want","one","even","must","need","done","back","just","going", "know","can","said","like","many","like","realdonaldtrump", "rt"))) %>%
+  mutate(text = removeWords(text, c(""))) %>%
+
+# Getting frequencies
+sorted <- as.tibble(unlist(str_split(tweet_words, " "))) %>%
+  group_by(value) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+sorted <- as.data.frame(sorted)
+sorted <- sorted[-c(1, 2, 6, 9, 29, 35, 48),] # really tried
+
+# Making the wordcloud
+wordcloud(words = sorted$value, freq = sorted$count, min.freq=3, max.words=50)
+
