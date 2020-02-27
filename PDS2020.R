@@ -27,9 +27,15 @@ ggplot(data = primaryPolls, mapping = aes(x=start_date, y=pct, color=candidate_n
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
   
 
+
+
 #2)
 primaryPolls <- primaryPollsCopy #resetting to the original data
-primaryPolls %>% pivot_wider(names_from = state, values_from = pct)
+object.size(primaryPolls)
+primaryPolls <- primaryPolls %>% pivot_wider(names_from = state, values_from = pct)
+object.size(primaryPolls)
+# 4001704 bytes v 13869768 (with individual dyad set being much bigger)
+
 
 #3)
 
@@ -64,6 +70,8 @@ p <- ggplot(data = num_endorsements, mapping = aes(x = candidate_name, y = count
 p + labs(title = "Who the Who's Who Think Should Win in 2020", x = "Number of Endorsements", y = "2020 Presidential Candidate") +
   theme_light() + 
   theme(axis.text.y = element_text(angle = 15), axis.text.x = element_text(angle = 15))
+
+
 
 #4) Read in libraries at the top
 tweets <- read.csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv')
