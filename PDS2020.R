@@ -1,3 +1,7 @@
+# Diva Harsoor
+# February 27, 2019
+# Political Data Science - Problem Set 3
+
 library(ggplot2)
 library(tidyverse)
 library(fivethirtyeight)
@@ -29,16 +33,19 @@ ggplot(data = primaryPolls, mapping = aes(x=start_date, y=pct, color=candidate_n
 
 
 
-#2)
-primaryPolls <- primaryPollsCopy #resetting to the original data
+#2) Worked on this with Charlie Yan
+
+primaryPolls <- primaryPollsCopy # resetting to the original data
+pivot1 <- primaryPolls %>% group_by(candidate_name, state) %>% filter(candidate_name) %in% c("Amy Klobuchar", "Bernard Sanders", "Elizabeth Warren", "Joseph R. Biden, Jr.", "Michael Bloomberg", "Pete Buttigieg") %>%
+  summarise(mean = mean(pct)) # subsetting
+pivot2 <- pivot_wider(pivot1, name_from = candidate_name, values_from = mean)
+
+object.size(pivot2) # calculating sizes
 object.size(primaryPolls)
-primaryPolls <- primaryPolls %>% pivot_wider(names_from = state, values_from = pct)
-object.size(primaryPolls)
-# 4001704 bytes v 13869768 (with individual dyad set being much bigger)
+# 6672 bytes v 1011304
 
 
 #3)
-
 # Read in libraries at the top
 # Reading in data/creating new variables below
 polls <- read.csv('https://jmontgomery.github.io/PDS/Datasets/president_primary_polls_feb2020.csv')
